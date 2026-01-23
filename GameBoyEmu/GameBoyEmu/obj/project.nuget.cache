@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "5rdhV0WmT2E=",
+  "success": true,
+  "projectFilePath": "/home/krunkske/Documents/GitHub/GameBoyEmu/GameBoyEmu/GameBoyEmu/GameBoyEmu.csproj",
+  "expectedPackageFiles": [
+    "/home/krunkske/.nuget/packages/raylib-cs/7.0.2/raylib-cs.7.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
