@@ -1,11 +1,11 @@
 namespace GameBoyEmu;
 
-public class cpu
+public class Cpu
 {
-    private instruction instruction =  new instruction();
-    public int cycle(ref memory memory)
+    private Instruction _instruction =  new Instruction();
+    public int Cycle(ref MemoryBus memoryBus)
     {
-        byte next_instruction = memory.memory_buffer[memory.PC];
-        return instruction.execute_from_byte(next_instruction, ref memory);
+        byte nextInstruction = memoryBus.read_buffer(memoryBus.Pc++);
+        return _instruction.execute_from_byte(nextInstruction, ref memoryBus);
     }
 }

@@ -4,10 +4,10 @@ using Raylib_cs;
 Raylib.InitWindow(title:"GameBoyEmu", width:800, height:800);
 Raylib.SetTargetFPS(60);
 
-framebuffer framebuffer = new framebuffer(160, 144);
-memory memory = new memory();
-cpu cpu = new cpu();
-ppu ppu = new ppu();
+Framebuffer framebuffer = new Framebuffer(160, 144);
+MemoryBus memoryBus = new MemoryBus("/home/krunkske/Documents/GitHub/GameBoyEmu/GameBoyEmu/roms/cpu_instrs.gb");
+Cpu cpu = new Cpu();
+Ppu ppu = new Ppu();
 
 //Main loop
 while (!Raylib.WindowShouldClose())
@@ -15,8 +15,8 @@ while (!Raylib.WindowShouldClose())
     Raylib.BeginDrawing();
     Raylib.ClearBackground(Color.White);
     
-    int cycle_count = cpu.cycle(ref memory);
-    ppu.cycle();
+    int cycleCount = cpu.Cycle(ref memoryBus);
+    ppu.Cycle();
     
     
     framebuffer.MakeFrame();

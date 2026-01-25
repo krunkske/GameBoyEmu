@@ -2,27 +2,27 @@ using Raylib_cs;
 
 namespace GameBoyEmu;
 
-public class framebuffer
+public class Framebuffer
 {
-    private int width = 0;
-    private int height = 0;
+    private int _width = 0;
+    private int _height = 0;
     
-    Color[] buffer;
-    Texture2D texture;
+    Color[] _buffer;
+    Texture2D _texture;
     
-    public framebuffer(int width, int height)
+    public Framebuffer(int width, int height)
     {
-        this.width = width;
-        this.height = height;
-        this.buffer = new Color[width * height];
+        this._width = width;
+        this._height = height;
+        this._buffer = new Color[width * height];
 
-        Image image = Raylib.GenImageColor(this.width, this.height, Color.Black);
-        this.texture = Raylib.LoadTextureFromImage(image);
+        Image image = Raylib.GenImageColor(this._width, this._height, Color.Black);
+        this._texture = Raylib.LoadTextureFromImage(image);
     }
 
     public Texture2D MakeFrame()
     {
-        Raylib.UpdateTexture(this.texture, this.buffer);
-        return this.texture;
+        Raylib.UpdateTexture(this._texture, this._buffer);
+        return this._texture;
     }
 }

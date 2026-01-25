@@ -1,8 +1,8 @@
 namespace GameBoyEmu;
 
-public class ppu
+public class Ppu
 {
-    public void cycle()
+    public void Cycle()
     {
         
     }
