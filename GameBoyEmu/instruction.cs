@@ -23,14 +23,14 @@ public class Instruction
         mainOptcodes[0x05] = DEC_B;
         mainOptcodes[0x06] = LD_B_d8;
         mainOptcodes[0x07] = RLCA;
-        mainOptcodes[0x08] = NotInplemented;
-        mainOptcodes[0x09] = NotInplemented;
-        mainOptcodes[0x0A] = NotInplemented;
-        mainOptcodes[0x0B] = NotInplemented;
-        mainOptcodes[0x0C] = NotInplemented;
-        mainOptcodes[0x0D] = NotInplemented;
-        mainOptcodes[0x0E] = NotInplemented;
-        mainOptcodes[0x0F] = NotInplemented;
+        mainOptcodes[0x08] = LD_a16_SP;
+        mainOptcodes[0x09] = ADD_HL_BC;
+        mainOptcodes[0x0A] = LD_A_BC;
+        mainOptcodes[0x0B] = DEC_BC;
+        mainOptcodes[0x0C] = INC_C;
+        mainOptcodes[0x0D] = DEC_C;
+        mainOptcodes[0x0E] = LD_C_d8;
+        mainOptcodes[0x0F] = RRCA;
         //1x
         mainOptcodes[0x10] = STOP;
         mainOptcodes[0x11] = NotInplemented;
@@ -222,7 +222,7 @@ public class Instruction
         mainOptcodes[0xC0] = NotInplemented;
         mainOptcodes[0xC1] = NotInplemented;
         mainOptcodes[0xC2] = NotInplemented;
-        mainOptcodes[0xC3] = NotInplemented;
+        mainOptcodes[0xC3] = JP_a16;
         mainOptcodes[0xC4] = NotInplemented;
         mainOptcodes[0xC5] = NotInplemented;
         mainOptcodes[0xC6] = NotInplemented;
@@ -289,7 +289,7 @@ public class Instruction
 
     }
     
-    public int execute_from_byte(byte optcode,ref MemoryBus memoryBus)
+    public int execute_from_byte(byte optcode, MemoryBus memoryBus)
     {
         Console.WriteLine("\n----- Values -----");
         Console.WriteLine($"PC: {memoryBus.Pc}");
@@ -300,59 +300,12 @@ public class Instruction
         
         return amountOfCycles;
         
-        /*
-        switch (optcode)
-        {
-            case 0x00:
-                (instructionCycles, programCounter, replacePC) = NOP();
-                break;
-            case 0x10:
-                (instructionCycles, programCounter, replacePC) = STOP();
-                break;
-            case 0x20:
-                (instructionCycles, programCounter, replacePC) = JR_NZ_s8(memoryBus.Zbit, memoryBus.read_buffer((ushort)(memoryBus.Pc + 1)));
-                break;
-            case 0x30:
-                (instructionCycles, programCounter, replacePC) = JR_NC_s8(memoryBus.Cbit, memoryBus.read_buffer((ushort)(memoryBus.Pc + 1)));
-                break;
-            case 0x40: //LD B, B
-                (instructionCycles, programCounter, replacePC) = NOP();
-                break;
-            case 0x50: //LD B, D
-                (instructionCycles, programCounter, replacePC) = LD('B', 'D', ref memoryBus);
-                break;
-            case 0x60:
-                (instructionCycles, programCounter, replacePC) = LD('B', 'H', ref memoryBus);
-                break;
-            case 0x70:
-                (instructionCycles, programCounter, replacePC) = LD_HL('B', ref memoryBus);
-                break;
-            case 0x80:
-                (instructionCycles, programCounter, replacePC) = ADD_A('B', ref memoryBus);
-                break;
-            case 0x90:
-                (instructionCycles, programCounter, replacePC) = SUB_A('B', ref memoryBus);
-                break;
-            case 0xA0:
-                (instructionCycles, programCounter, replacePC) = AND_A('B', ref memoryBus);
-                break;
-            case 0xB0:
-                (instructionCycles, programCounter, replacePC) = OR_A('B', ref memoryBus);
-                break;
-            case 0xC0:
-                Console.WriteLine("Not implemented");
-                break;
-            default :
-                Console.WriteLine($"Not implemented: {value:X2}");
-                break;
-        }*/
-        
     }
     
 
     private int NotInplemented(MemoryBus memoryBus)
     {
-        Console.WriteLine($"{memoryBus.Pc}: Not Implemented");
+        Console.WriteLine($"{memoryBus.read_buffer(memoryBus.Pc):X2}: Not Implemented");
         return 0;
     }
     //0x
@@ -424,6 +377,84 @@ public class Instruction
         memoryBus.Hbit = false;
         memoryBus.Cbit = bit7;
         
+        return 1;
+    }
+
+    private int LD_a16_SP(MemoryBus memoryBus)
+    {   
+        byte higherNibble = memoryBus.read_buffer(memoryBus.Pc++);
+        byte lowerNibble = memoryBus.read_buffer(memoryBus.Pc++);
+
+        ushort result = (ushort)(higherNibble << 8 | lowerNibble);
+        
+        memoryBus.write_buffer_u16((ushort)(higherNibble << 8 | lowerNibble), memoryBus.Sp);
+        return 5;
+    }
+
+    private int ADD_HL_BC(MemoryBus memoryBus)
+    {
+        int result = memoryBus.BC + memoryBus.HL;
+
+        memoryBus.Nbit = false;
+        memoryBus.Hbit = ((memoryBus.BC & 0xF) + (1 & 0xF)) > 0xF; //TODO: This is probably wrong
+        memoryBus.Cbit = result > 0xFFFF;
+
+        memoryBus.HL = (ushort)result;
+
+        return 2;
+    }
+
+    private int LD_A_BC(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.read_buffer(memoryBus.BC);
+        return 2;
+    }
+
+    private int DEC_BC(MemoryBus memoryBus)
+    {
+        memoryBus.BC--;
+        return 2;
+    }
+
+    private int INC_C(MemoryBus memoryBus)
+    {
+        int result = memoryBus.C + 1;
+        memoryBus.Zbit = memoryBus.C == 0;
+        memoryBus.Nbit = false;
+        memoryBus.Hbit = ((memoryBus.C & 0xF) + (1 & 0xF)) > 0xF;
+
+        memoryBus.C++;
+        return 1;
+    }
+
+    private int DEC_C(MemoryBus memoryBus)
+    {
+        int result = memoryBus.C - 1;
+        memoryBus.Zbit = memoryBus.C == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = ((memoryBus.C & 0xF) + (1 & 0xF)) > 0xF;
+        memoryBus.C--;
+        return 1;
+    }
+
+    private int LD_C_d8(MemoryBus memoryBus)
+    {
+        memoryBus.C = memoryBus.read_buffer(memoryBus.Pc++);
+        return 2;
+    }
+
+    private int RRCA(MemoryBus memoryBus)
+    {
+        bool bit0 = (memoryBus.A & 0x01) != 0; //Logical AND of bit 7
+        memoryBus.A = (byte)(memoryBus.A >> 1); //Bitshift A to the right
+        
+        memoryBus.A = (byte)(memoryBus.A | (bit0 ? 0x08: 0x00)); //Make bit 0 one or zero depending on the previous bit 7
+        
+        memoryBus.Zbit = false;
+        memoryBus.Nbit = false;
+        memoryBus.Hbit = false;
+        memoryBus.Cbit = bit0;
+
         return 1;
     }
     
@@ -879,4 +910,17 @@ public class Instruction
 
         return 1;
     }
+    
+    //Cx
+    private int JP_a16(MemoryBus memoryBus)
+    {
+        byte lower = memoryBus.read_buffer(memoryBus.Pc++);
+        byte upper = memoryBus.read_buffer(memoryBus.Pc++);
+        
+        ushort result = (ushort)((upper << 8) + lower);
+        
+        memoryBus.Pc = result;
+        return 4;
+    }
+    
 }

@@ -6,6 +6,6 @@ public class Cpu
     public int Cycle(ref MemoryBus memoryBus)
     {
         byte nextInstruction = memoryBus.read_buffer(memoryBus.Pc++);
-        return _instruction.execute_from_byte(nextInstruction, ref memoryBus);
+        return _instruction.execute_from_byte(nextInstruction, memoryBus);
     }
 }

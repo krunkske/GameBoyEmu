@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GameBoyEmu")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+830875181248d6ca7ca02bfb8fdc069d1485275a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+94c6b749ee297fe82ba0e559080cbc293d96a043")]
 [assembly: System.Reflection.AssemblyProductAttribute("GameBoyEmu")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GameBoyEmu")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

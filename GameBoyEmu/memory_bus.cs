@@ -132,39 +132,117 @@ public class MemoryBus
         switch (address)
         {
             case <= 0x3FFF:
+                Console.WriteLine($"Reading cartridge Bank-00: {address}");
                 return Cartridge.read_rom(address);
+            case >= 0x4000 and <= 0x7FFF:
+                Console.WriteLine($"Reading cartridge Bank-01-NN. NOT IMPLEMENTED: {address}");
+                return Cartridge.read_rom(address);
+            case >= 0x8000 and <= 0x9FFF:
+                Console.WriteLine($"Reading VRAM: {address}");
+                return _memoryBuffer[address];
+            case >= 0xA000 and <= 0xBFFF:
+                Console.WriteLine($"Reading External RAM bank. NOT IMPLEMENTED: {address}");
+                return _memoryBuffer[address];
+            case >= 0xC000 and <= 0xCFFF:
+                Console.WriteLine($"Reading work RAM: {address}");
+                return _memoryBuffer[address];
+            case >= 0xD000 and <= 0xDFFF:
+                Console.WriteLine($"Reading work RAM for GBC: {address}");
+                return _memoryBuffer[address];
+            case >= 0xE000 and <= 0xFDFF:
+                Console.WriteLine($"Reading mirror of part of work RAM. Use is prohibited: {address}");
+                return _memoryBuffer[address];
+            case >= 0xFE00 and <= 0xFE9F:
+                Console.WriteLine($"Reading Object attribute memory: {address}");
+                return _memoryBuffer[address];
+            case >= 0xFEA0 and <= 0xFEFF:
+                Console.WriteLine($"Reading unusable memory! Use is prohibited: {address}");
+                return _memoryBuffer[address];
             case >= 0xFF00 and <= 0xFF7F:
-                Console.WriteLine("Trying to read input");
+                Console.WriteLine($"Reading input. NOT IMPLEMENTED: {address}");
                 return 0;
+            case >= 0xFF80 and <= 0xFFFE:
+                Console.WriteLine($"Reading High RAM. NOT IMPLEMENTED I think: {address}");
+                return _memoryBuffer[address];
+            case 0xFFFF:
+                Console.WriteLine($"Reading Interrupt Enable register: {address}");
+                return _memoryBuffer[address];
+            default:
+                Console.WriteLine($"This part can never be reached: {address}");
+                return _memoryBuffer[address];
+            
         }
-        return _memoryBuffer[address];
     }
     
     public void write_buffer(ushort address, byte value)
     {
-        _memoryBuffer[address] = value;
+        switch (address)
+        {
+            case <= 0x3FFF:
+                Console.WriteLine($"Writing to cartridge Bank-00. Is impossible: {address}, {value}");
+                break;
+            case >= 0x4000 and <= 0x7FFF:
+                Console.WriteLine($"Writing to cartridge Bank-01-NN. Is impossible: {address}, {value}");
+                break;
+            case >= 0x8000 and <= 0x9FFF:
+                Console.WriteLine("Writing to VRAM");
+                _memoryBuffer[address] = value;
+                break;
+            case >= 0xA000 and <= 0xBFFF:
+                Console.WriteLine($"Writing to External RAM bank. NOT IMPLEMENTED: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            case >= 0xC000 and <= 0xCFFF:
+                Console.WriteLine($"Writing to work RAM: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            case >= 0xD000 and <= 0xDFFF:
+                Console.WriteLine($"Writing to work RAM for GBC: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            case >= 0xE000 and <= 0xFDFF:
+                Console.WriteLine($"Writing to mirror part of work RAM. Use is prohibited: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            case >= 0xFE00 and <= 0xFE9F:
+                Console.WriteLine($"Writing to Object attribute memory: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            case >= 0xFEA0 and <= 0xFEFF:
+                Console.WriteLine($"Writing to unusable memory! Use is prohibited: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            case >= 0xFF00 and <= 0xFF7F:
+                Console.WriteLine($"Writing to input. Not possible. NOT IMPLEMENTED: {address}, {value}");
+                break;
+            case >= 0xFF80 and <= 0xFFFE:
+                Console.WriteLine($"writing to High RAM. NOT IMPLEMENTED I think: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            case 0xFFFF:
+                Console.WriteLine($"Writing to Interrupt Enable register. INTERRUPTS NOT IMPLEMENTED: {address}, {value}");
+                _memoryBuffer[address] = value;
+                break;
+            default:
+                Console.WriteLine($"This part can never be reached: {address}, {value}");
+                break;
+            
+        }
     }
 
-    public byte get_registry(char registry)
+    public ushort read_buffer_u16(ushort address)
     {
-        switch (registry)
-        {
-            case 'A':
-                return A;
-            case 'B':
-                return B;
-            case 'C':
-                return C;
-            case 'D':
-                return D;
-            case 'E':
-                return E;
-            case 'H':
-                return H;
-            case 'L':
-                return L;
-        }
+        byte lower = read_buffer(address);
+        byte upper = read_buffer((ushort)(address + 1));
+        return (ushort)(upper | lower << 8);
+    }
 
-        return 0;
+    public void write_buffer_u16(ushort address, ushort value)
+    {
+        byte lower = (byte)(value & 0xFF);
+        byte upper = (byte)((value >> 8) & 0xFF);
+        
+        write_buffer(address, lower);
+        write_buffer(address, upper);
     }
 }
