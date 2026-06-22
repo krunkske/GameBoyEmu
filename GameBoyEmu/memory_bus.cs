@@ -213,7 +213,7 @@ public class MemoryBus
                 _memoryBuffer[address] = value;
                 break;
             case >= 0xFF00 and <= 0xFF7F:
-                Console.WriteLine($"Writing to input. Not possible. NOT IMPLEMENTED: {address}, {value}");
+                Console.WriteLine($"Writing to input. NOT IMPLEMENTED: {address}, {value}");
                 break;
             case >= 0xFF80 and <= 0xFFFE:
                 Console.WriteLine($"writing to High RAM. NOT IMPLEMENTED I think: {address}, {value}");
