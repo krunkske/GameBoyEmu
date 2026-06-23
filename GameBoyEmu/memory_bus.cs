@@ -12,7 +12,7 @@ public class MemoryBus
     public byte L;
     public ushort Sp; //Stack pointer
     public ushort Pc = 0x0100; //Program counter, position 100 is the place where the main program starts
-
+    
     public ushort AF
     {
         get => (ushort)((A << 8) | F);
@@ -54,7 +54,7 @@ public class MemoryBus
 
     public bool Zbit
     {
-        get => (F & 0x80) != 0;
+        get => (F & 0x80) == 0x80;
         set 
         {
             if (value)
@@ -70,7 +70,7 @@ public class MemoryBus
 
     public bool Nbit
     {
-        get => (F & 0x70) != 0;
+        get => (F & 0x40) == 0x40;
         set
         {
             if (value)
@@ -86,7 +86,7 @@ public class MemoryBus
 
     public bool Hbit
     {
-        get => (F & 0x60) != 0;
+        get => (F & 0x20) == 0x20;
         set
         {
             if (value)
@@ -102,7 +102,7 @@ public class MemoryBus
 
     public bool Cbit
     {
-        get => (F & 0x50) != 0;
+        get => (F & 0x10) == 0x10;
         set
         {
             if (value)
@@ -125,8 +125,40 @@ public class MemoryBus
     {
         _memoryBuffer = new byte[65535];
         Cartridge = new Cartridge(filepath);
-    }
+        
+        // Following the original DMG GameBoy model (Not DMG0)
+        A = 0x01;
+        B = 0x00;
+        C = 0x13;
+        D = 0x00;
+        E = 0xD8;
+        H = 0x01;
+        L = 0x4D;
+        F = 0xB0;
+        Sp = 0xFFFE;
 
+    }
+    
+    public string get_all_registers_formatted()
+    {
+        string text = "";
+        string flagText = "";
+        flagText += (Zbit) ? "Z" : "-";
+        flagText += (Nbit) ? "N" : "-";
+        flagText += (Hbit) ? "H" : "-";
+        flagText += (Cbit) ? "C" : "-";
+
+        text += $"A: {A:X2}  F: {F:X2}  (AF: {AF:X4})\n";
+        text += $"B: {B:X2}  C: {C:X2}  (BC: {BC:X4})\n";
+        text += $"D: {D:X2}  E: {E:X2}  (DE: {DE:X4})\n";
+        text += $"H: {H:X2}  L: {L:X2}  (HL: {HL:X4})\n";
+        text += $"PC: {Pc:X}  SP: {Sp:X}\n";
+        
+        text += $"F: [{flagText}] ({F:B})";
+        
+        return text;
+    }
+    
     public byte read_buffer(ushort address)
     {
         switch (address)

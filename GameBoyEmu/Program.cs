@@ -5,7 +5,7 @@ Raylib.InitWindow(title:"GameBoyEmu", width:800, height:800);
 Raylib.SetTargetFPS(60);
 
 Framebuffer framebuffer = new Framebuffer(160, 144);
-MemoryBus memoryBus = new MemoryBus("/home/krunkske/Documents/GitHub/GameBoyEmu/GameBoyEmu/roms/Tetris (World) (Rev 1).gb");
+MemoryBus memoryBus = new MemoryBus("/home/krunkske/Documents/GitHub/GameBoyEmu/GameBoyEmu/roms/cpu_instrs.gb");
 Cpu cpu = new Cpu();
 Ppu ppu = new Ppu();
 

@@ -325,14 +325,12 @@ public class Instruction
     public int execute_from_byte(byte optcode, MemoryBus memoryBus)
     {
         Console.WriteLine("\n----- Values -----\n");
-        Console.WriteLine($"PC: 0x{memoryBus.Pc:X2}");
+        Console.WriteLine(memoryBus.get_all_registers_formatted());
         Console.WriteLine();
         Console.WriteLine($"-- Executing instruction {mainOptcodes[optcode].Method.Name} ({optcode:X2}) --");
         int amountOfCycles = mainOptcodes[optcode](memoryBus);
         
         Console.WriteLine("-- Done executing --");
-        
-        Console.WriteLine("\n------ END ------\n");
         
         return amountOfCycles;
         
@@ -594,7 +592,8 @@ public class Instruction
 
     private int JR_s8(MemoryBus memoryBus)
     {
-        memoryBus.Pc += memoryBus.read_buffer(memoryBus.Pc++);
+        sbyte jump = (sbyte)memoryBus.read_buffer(memoryBus.Pc++);
+        memoryBus.Pc = (ushort)(memoryBus.Pc + jump);
 
         return 3;
     }
@@ -642,7 +641,9 @@ public class Instruction
     {
         if (!memoryBus.Zbit)
         {
-            memoryBus.Pc += memoryBus.read_buffer(memoryBus.Pc++);
+            sbyte jump = (sbyte)memoryBus.read_buffer(memoryBus.Pc++);
+            Console.WriteLine($"Jumping: {jump}, {jump:X2}, {memoryBus.Pc + jump}");
+            memoryBus.Pc = (ushort)(memoryBus.Pc + jump);
             return 3;
         }
 
@@ -732,7 +733,8 @@ public class Instruction
     {
         if (memoryBus.Zbit)
         {
-            memoryBus.Pc += memoryBus.read_buffer(memoryBus.Pc++);
+            sbyte jump = (sbyte)memoryBus.read_buffer(memoryBus.Pc++);
+            memoryBus.Pc = (ushort)(memoryBus.Pc + jump);
             return 3;
         }
 
@@ -807,7 +809,8 @@ public class Instruction
     {
         if (!memoryBus.Cbit)
         {
-            memoryBus.Pc += memoryBus.read_buffer((ushort)(memoryBus.Pc + 1));
+            sbyte jump = (sbyte)memoryBus.read_buffer(memoryBus.Pc++);
+            memoryBus.Pc = (ushort)(memoryBus.Pc + jump);
             return 3;
         }
 
@@ -885,7 +888,8 @@ public class Instruction
     {
         if (memoryBus.Cbit)
         {
-            memoryBus.Pc += memoryBus.read_buffer(memoryBus.Pc++);
+            sbyte jump = (sbyte)memoryBus.read_buffer(memoryBus.Pc++);
+            memoryBus.Pc = (ushort)(memoryBus.Pc + jump);
             return 3;
         }
 
