@@ -147,7 +147,7 @@ public class Instruction
         mainOptcodes[0x6E] = LD_L_HL;
         mainOptcodes[0x6F] = LD_L_A;
         #endregion
-        //TODO incomplete + TODO
+        //implemented + TODO * 1
         #region inst_7x
         mainOptcodes[0x70] = LD_HL_B;
         mainOptcodes[0x71] = LD_HL_C;
@@ -157,14 +157,14 @@ public class Instruction
         mainOptcodes[0x75] = LD_HL_L;
         mainOptcodes[0x76] = HALT; //TODO: not implemented
         mainOptcodes[0x77] = LD_HL_A;
-        mainOptcodes[0x78] = NotInplemented;
-        mainOptcodes[0x79] = NotInplemented;
-        mainOptcodes[0x7A] = NotInplemented;
-        mainOptcodes[0x7B] = NotInplemented;
-        mainOptcodes[0x7C] = NotInplemented;
-        mainOptcodes[0x7D] = NotInplemented;
-        mainOptcodes[0x7E] = NotInplemented;
-        mainOptcodes[0x7F] = NotInplemented;
+        mainOptcodes[0x78] = LD_A_B;
+        mainOptcodes[0x79] = LD_A_C;
+        mainOptcodes[0x7A] = LD_A_D;
+        mainOptcodes[0x7B] = LD_A_E;
+        mainOptcodes[0x7C] = LD_A_H;
+        mainOptcodes[0x7D] = LD_A_L;
+        mainOptcodes[0x7E] = LD_A_HL;
+        mainOptcodes[0x7F] = LD_A_A;
         #endregion
         //implemented
         #region inst_8x
@@ -185,24 +185,24 @@ public class Instruction
         mainOptcodes[0x8E] = ADC_A_HL;
         mainOptcodes[0x8F] = ADC_A_A;
         #endregion
-        //TODO incomplete
+        //implemented
         #region inst_9x
         mainOptcodes[0x90] = SUB_B;
-        mainOptcodes[0x91] = NotInplemented;
-        mainOptcodes[0x92] = NotInplemented;
-        mainOptcodes[0x93] = NotInplemented;
-        mainOptcodes[0x94] = NotInplemented;
-        mainOptcodes[0x95] = NotInplemented;
-        mainOptcodes[0x96] = NotInplemented;
-        mainOptcodes[0x97] = NotInplemented;
-        mainOptcodes[0x98] = NotInplemented;
-        mainOptcodes[0x99] = NotInplemented;
-        mainOptcodes[0x9A] = NotInplemented;
-        mainOptcodes[0x9B] = NotInplemented;
-        mainOptcodes[0x9C] = NotInplemented;
-        mainOptcodes[0x9D] = NotInplemented;
-        mainOptcodes[0x9E] = NotInplemented;
-        mainOptcodes[0x9F] = NotInplemented;
+        mainOptcodes[0x91] = SUB_C;
+        mainOptcodes[0x92] = SUB_D;
+        mainOptcodes[0x93] = SUB_E;
+        mainOptcodes[0x94] = SUB_H;
+        mainOptcodes[0x95] = SUB_L;
+        mainOptcodes[0x96] = SUB_HL;
+        mainOptcodes[0x97] = SUB_A;
+        mainOptcodes[0x98] = SBC_A_B;
+        mainOptcodes[0x99] = SBC_A_C;
+        mainOptcodes[0x9A] = SBC_A_D;
+        mainOptcodes[0x9B] = SBC_A_E;
+        mainOptcodes[0x9C] = SBC_A_H;
+        mainOptcodes[0x9D] = SBC_A_L;
+        mainOptcodes[0x9E] = SBC_A_HL;
+        mainOptcodes[0x9F] = SBC_A_A;
         #endregion
         //implemented
         #region inst_Ax
@@ -1246,7 +1246,7 @@ public class Instruction
 
     private int HALT(MemoryBus memoryBus)
     {
-        return NotInplemented(memoryBus);
+        return NotInplemented(memoryBus); //TODO
     }
     
     private int LD_HL_A(MemoryBus memoryBus)
@@ -1254,6 +1254,54 @@ public class Instruction
         memoryBus.write_buffer(memoryBus.HL, memoryBus.A);
         
         return 2;
+    }
+
+    private int LD_A_B(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.B;
+        return 1;
+    }
+    
+    private int LD_A_C(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.C;
+        return 1;
+    }
+    
+    private int LD_A_D(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.D;
+        return 1;
+    }
+    
+    private int LD_A_E(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.E;
+        return 1;
+    }
+    
+    private int LD_A_H(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.H;
+        return 1;
+    }
+    
+    private int LD_A_L(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.L;
+        return 1;
+    }
+    
+    private int LD_A_HL(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.read_buffer(memoryBus.HL);
+        return 2;
+    }
+    
+    private int LD_A_A(MemoryBus memoryBus)
+    {
+        memoryBus.A = memoryBus.A;
+        return 1;
     }
     
     #endregion
@@ -1515,13 +1563,230 @@ public class Instruction
         byte value = memoryBus.B;
         
         int result = memoryBus.A - value;
-        memoryBus.Zbit = (byte)result == 0; 
-        memoryBus.Nbit = true; 
-        memoryBus.Hbit = ((memoryBus.A & 0xF) < (value & 0xF)); //Check if A + value_in is bigger than 16
-        memoryBus.Cbit = memoryBus.A < value; //Bigger than 255
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
         
         memoryBus.A = (byte)result;
 
+        return 1;
+    }
+
+    private int SUB_C(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.C;
+        
+        int result = memoryBus.A - value;
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+
+        return 1;
+    }
+    
+    private int SUB_D(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.D;
+        
+        int result = memoryBus.A - value;
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+
+        return 1;
+    }
+    
+    private int SUB_E(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.E;
+        
+        int result = memoryBus.A - value;
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+
+        return 1;
+    }
+    
+    private int SUB_H(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.H;
+        
+        int result = memoryBus.A - value;
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+
+        return 1;
+    }
+    
+    private int SUB_L(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.L;
+        
+        int result = memoryBus.A - value;
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+
+        return 1;
+    }
+    
+    private int SUB_HL(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.read_buffer(memoryBus.HL);
+        
+        int result = memoryBus.A - value;
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+
+        return 2;
+    }
+    
+    private int SUB_A(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.A;
+        
+        int result = memoryBus.A - value;
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+
+        return 1;
+    }
+
+    private int SBC_A_B(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.B;
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+        return 1;
+    }
+    
+    private int SBC_A_C(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.C;
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+        return 1;
+    }
+    
+    private int SBC_A_D(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.D;
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+        return 1;
+    }
+    
+    private int SBC_A_E(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.E;
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+        return 1;
+    }
+    
+    private int SBC_A_H(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.H;
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+        return 1;
+    }
+    
+    private int SBC_A_L(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.L;
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+        return 1;
+    }
+    
+    private int SBC_A_HL(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.read_buffer(memoryBus.HL);
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
+        return 2;
+    }
+    
+    private int SBC_A_A(MemoryBus memoryBus)
+    {
+        byte value = memoryBus.A;
+        
+        int result = memoryBus.A - value - (memoryBus.Cbit ? 1 : 0);
+        memoryBus.Zbit = (byte)result == 0;
+        memoryBus.Nbit = true;
+        memoryBus.Hbit = (memoryBus.A & 0xF) < (value & 0xF); //Get the lower nibble of both values and 
+        memoryBus.Cbit = memoryBus.A < value; //If the value is bigger than A, then we know that the result will be negative / below zero.
+        
+        memoryBus.A = (byte)result;
         return 1;
     }
     

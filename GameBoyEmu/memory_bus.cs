@@ -51,8 +51,13 @@ public class MemoryBus
             L = (byte)(value & 0xFF);
         }
     }
-
-    public bool Zbit
+    
+    /// <summary>
+    /// Zero flag (bit 7)
+    /// 
+    /// This bit is set if and only if the result of an operation is zero. Used by conditional jumps.
+    /// </summary>
+    public bool Zbit 
     {
         get => (F & 0x80) == 0x80;
         set 
@@ -67,7 +72,12 @@ public class MemoryBus
             }
         }
     }
-
+    
+    /// <summary>
+    /// Subtraction flag (BCD) (bit 6)
+    ///
+    /// Indicates whether the previous instruction has been a subtraction
+    /// </summary>
     public bool Nbit
     {
         get => (F & 0x40) == 0x40;
@@ -83,7 +93,12 @@ public class MemoryBus
             }
         }
     }
-
+    
+    /// <summary>
+    /// Half Carry flag (BCD) (bit 5)
+    /// 
+    /// Indicates carry for the lower 4 bits of the result
+    /// </summary>
     public bool Hbit
     {
         get => (F & 0x20) == 0x20;
@@ -99,7 +114,18 @@ public class MemoryBus
             }
         }
     }
-
+    
+    /// <summary>
+    /// Carry flag (bit 4)
+    ///
+    /// Is set in these cases:
+    ///     When the result of an 8-bit addition is higher than $FF.
+    ///     When the result of a 16-bit addition is higher than $FFFF.
+    ///     When the result of a subtraction or comparison is lower than zero.
+    ///     When a rotate/shift operation shifts out a “1” bit.
+    ///
+    ///Used by conditional jumps and instructions such as ADC, SBC, RL, RLA, etc.
+    /// </summary>
     public bool Cbit
     {
         get => (F & 0x10) == 0x10;
